@@ -37,13 +37,19 @@ app.use(express.urlencoded({ extended: true }));
 // Connect to MongoDB
 connectDB();
 
+const API_PREFIX = '/api/v1';
+
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/enquiries', enquiryRoutes);
+app.use(`${API_PREFIX}/auth`, authRoutes);
+app.use(`${API_PREFIX}/enquiries`, enquiryRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server is running', timestamp: new Date().toISOString() });
+app.get(`${API_PREFIX}`, (req, res) => {
+  res.json({
+    success: true,
+    message: 'SpaceGen API v1 is running 🚀',
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // 404 handler

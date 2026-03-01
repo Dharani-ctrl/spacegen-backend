@@ -17,7 +17,9 @@ app.use(helmet());
 
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-  : ['http://localhost:3000', 'http://localhost:3001'];
+  : [
+    'https://spacegen-aviation-utd3.vercel.app',
+    'http://localhost:3000', 'http://localhost:3001'];
 
 app.use(cors({
   origin: function (origin, callback) {

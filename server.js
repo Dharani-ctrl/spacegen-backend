@@ -2,129 +2,52 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
+import connectDB from "./config/database.js";
 
-import { connectDB } from "./config/database.js";
 import enquiryRoutes from "./routes/enquiries.js";
 import authRoutes from "./routes/auth.js";
-import { errorHandler } from "./middleware/errorHandler.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ---------------- SECURITY ---------------- //
+// Security
+app.use(helmet());
 
-app.use(
-  helmet({
-    crossOriginResourcePolicy: false
-  })
-);
+// Body parser
+app.use(express.json());
 
-// ---------------- CORS CONFIGURATION ---------------- //
-
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://spacegen-aviation-six.vercel.app",
-  "https://spacegen-aviation-utd3.vercel.app",
-  "https://www.spacegenaviation.in",
-  "http://localhost:3001",
-  "http://127.0.0.1:3000",
-  "http://127.0.0.1:3001"
-];
-
+// CORS configuration
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    origin: [
+      "http://localhost:3000",
+      "https://spacegen-aviation-six.vercel.app",
+      "https://www.spacegenaviation.in"
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
   })
 );
 
-// Important for browser preflight requests
-app.options("*", cors());
-
-// ---------------- BODY PARSER ---------------- //
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// ---------------- DATABASE CONNECTION ---------------- //
-
+// Connect database
 connectDB();
 
-// ---------------- API PREFIX ---------------- //
+// Routes
+app.use("/api/v1/enquiries", enquiryRoutes);
+app.use("/api/v1/auth", authRoutes);
 
-const API_PREFIX = "/api/v1";
-
-// ---------------- ROOT ROUTE ---------------- //
-
+// Health route
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "Welcome to SpaceGen Aviation API 🚀",
-    documentation: "https://spacegen-backend.onrender.com/api/v1",
-    status: "online",
-    timestamp: new Date().toISOString()
+    message: "SpaceGen Backend API Running"
   });
 });
 
-// ---------------- API ROUTES ---------------- //
-
-app.use(`${API_PREFIX}/auth`, authRoutes);
-app.use(`${API_PREFIX}/enquiries`, enquiryRoutes);
-
-// ---------------- DATABASE DEBUG ---------------- //
-
-app.get(`${API_PREFIX}/debug-db`, (req, res) => {
-  const isConnected = mongoose.connection.readyState === 1;
-
-  res.json({
-    connected: isConnected,
-    connectionState: mongoose.connection.readyState,
-    status: isConnected ? "Healthy" : "Disconnected",
-    environment: process.env.NODE_ENV || "development"
-  });
-});
-
-// ---------------- HEALTH CHECK ---------------- //
-
-app.get(`${API_PREFIX}`, (req, res) => {
-  res.json({
-    success: true,
-    message: "SpaceGen API v1 is running 🚀",
-    timestamp: new Date().toISOString()
-  });
-});
-
-// ---------------- 404 HANDLER ---------------- //
-
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found"
-  });
-});
-
-// ---------------- ERROR HANDLER ---------------- //
-
-app.use(errorHandler);
-
-// ---------------- START SERVER ---------------- //
-
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 SpaceGen Backend running on port ${PORT}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
 });
-
-export default app;

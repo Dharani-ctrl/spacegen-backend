@@ -44,6 +44,17 @@ connectDB();
 
 const API_PREFIX = '/api/v1';
 
+// Main root route for accessibility/health Check
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Welcome to SpaceGen Aviation API 🚀',
+    documentation: 'https://spacegen-backend.onrender.com/api/v1',
+    status: 'online',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Routes
 app.use(`${API_PREFIX}/auth`, authRoutes);
 app.use(`${API_PREFIX}/enquiries`, enquiryRoutes);

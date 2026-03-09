@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+
 import { connectDB } from './config/database.js';
 import enquiryRoutes from './routes/enquiries.js';
 import authRoutes from './routes/auth.js';
@@ -12,33 +14,64 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(helmet());
+// ---------------- SECURITY MIDDLEWARE ---------------- //
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
+
+// ---------------- CORS CONFIGURATION ---------------- //
 
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
   : [
     'https://spacegen-aviation-six.vercel.app',
     'https://spacegen-aviation-utd3.vercel.app',
+    'https://www.spacegenaviation.in',
     'http://localhost:3000',
     'http://localhost:3001'
   ];
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+
+      // allow requests with no origin (like mobile apps or Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = `CORS policy does not allow access from origin: ${origin}`;
+        return callback(new Error(msg), false);
+      }
+
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  })
+);
+
+// Handle preflight requests
+app.options('*', cors());
+
+// ---------------- BODY PARSER ---------------- //
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to MongoDB
+// ---------------- DATABASE CONNECTION ---------------- //
+
 connectDB();
+
+// ---------------- API PREFIX ---------------- //
 
 const API_PREFIX = '/api/v1';
 
-// Main root route for accessibility/health Check
+// ---------------- ROOT ROUTE ---------------- //
+
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -49,41 +82,52 @@ app.get('/', (req, res) => {
   });
 });
 
-// Routes
+// ---------------- API ROUTES ---------------- //
+
 app.use(`${API_PREFIX}/auth`, authRoutes);
 app.use(`${API_PREFIX}/enquiries`, enquiryRoutes);
 
-// Database connection check route
+// ---------------- DATABASE DEBUG ---------------- //
+
 app.get(`${API_PREFIX}/debug-db`, (req, res) => {
   const isConnected = mongoose.connection.readyState === 1;
+
   res.json({
     connected: isConnected,
     connectionState: mongoose.connection.readyState,
     status: isConnected ? 'Healthy' : 'Disconnected',
-    env: process.env.NODE_ENV
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
-// Health check
+// ---------------- HEALTH CHECK ---------------- //
+
 app.get(`${API_PREFIX}`, (req, res) => {
   res.json({
     success: true,
     message: 'SpaceGen API v1 is running 🚀',
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   });
 });
 
-// 404 handler
+// ---------------- 404 HANDLER ---------------- //
+
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
 });
 
-// Error handling middleware
+// ---------------- ERROR HANDLER ---------------- //
+
 app.use(errorHandler);
 
+// ---------------- START SERVER ---------------- //
+
 app.listen(PORT, () => {
-  console.log(`[SpaceGen Backend] Server running on port ${PORT}`);
-  console.log(`[SpaceGen Backend] Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🚀 SpaceGen Backend running on port ${PORT}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 export default app;

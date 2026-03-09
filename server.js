@@ -53,6 +53,17 @@ app.get('/', (req, res) => {
 app.use(`${API_PREFIX}/auth`, authRoutes);
 app.use(`${API_PREFIX}/enquiries`, enquiryRoutes);
 
+// Database connection check route
+app.get(`${API_PREFIX}/debug-db`, (req, res) => {
+  const isConnected = mongoose.connection.readyState === 1;
+  res.json({
+    connected: isConnected,
+    connectionState: mongoose.connection.readyState,
+    status: isConnected ? 'Healthy' : 'Disconnected',
+    env: process.env.NODE_ENV
+  });
+});
+
 // Health check
 app.get(`${API_PREFIX}`, (req, res) => {
   res.json({

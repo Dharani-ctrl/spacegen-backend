@@ -31,11 +31,14 @@ export const createEnquiry = async (req, res) => {
 
     await enquiry.save();
 
+    console.log(`[Enquiry] New enquiry saved successfully from: ${email}`);
+
     res.status(201).json({
       message: 'Enquiry submitted successfully',
       enquiry,
     });
   } catch (error) {
+    console.error('[Enquiry] Creation Error:', error);
     res.status(500).json({ error: error.message });
   }
 };

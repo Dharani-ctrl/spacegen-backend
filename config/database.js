@@ -4,34 +4,22 @@ export const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGODB_URI;
 
-    if (!mongoURI) {
-      if (process.env.NODE_ENV === "production") {
-        throw new Error(
-          "MONGODB_URI is not defined. Please set it in Render Environment Variables"
-        );
-      }
-      console.warn(
-        "[DB] MONGODB_URI not found, using localhost for development"
-      );
+    if (!mongoURI && process.env.NODE_ENV === "production") {
+      throw new Error("❌ MONGODB_URI not found in environment variables");
     }
 
-    const finalURI = mongoURI || "mongodb://127.0.0.1:27017/spacegen";
+    const finalURI = mongoURI || "mongodb://localhost:27017/spacegen";
 
+    console.log("[DB] Connecting to MongoDB...");
     await mongoose.connect(finalURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000, // Fail fast (5s) instead of hanging
     });
 
     console.log("✅ MongoDB Connected Successfully");
-
-    mongoose.connection.on("error", (err) => {
-      console.error("❌ MongoDB Error:", err);
-    });
-
   } catch (error) {
     console.error("❌ MongoDB Connection Error:", error.message);
-
     if (process.env.NODE_ENV === "production") {
+      console.error("[DB] Critical: Connection failed in production. Application will exit.");
       process.exit(1);
     }
   }

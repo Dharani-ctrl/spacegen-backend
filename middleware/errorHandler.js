@@ -1,12 +1,12 @@
 export const errorHandler = (err, req, res, next) => {
   const status = err.status || 500;
-  const message = err.message || 'Internal Server Error';
 
-  console.error(`[Error] ${status}: ${message}`);
+  console.error("🔥 Error:", err);
 
   res.status(status).json({
-    error: message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    success: false,
+    message: err.message || "Internal Server Error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 };
 

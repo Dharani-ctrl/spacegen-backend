@@ -1,24 +1,48 @@
-import Enquiry from '../models/Enquiry.js';
-import { validateEnquiry } from '../utils/validators.js';
+import Enquiry from "../models/Enquiry.js";
 
 export const createEnquiry = async (req, res) => {
   try {
-    const { studentName, parentName, email, phone, schoolName, currentClass, programInterest, message } = req.body;
+    console.log("Incoming Enquiry:", req.body);
 
-    // Validate
-    const validation = validateEnquiry(req.body);
-    if (!validation.valid) {
-      return res.status(400).json({ error: validation.error });
+    const {
+      studentName,
+      parentName,
+      email,
+      phone,
+      schoolName,
+      currentClass,
+      programInterest,
+      message,
+    } = req.body;
+
+    // Required field validation
+    if (
+      !studentName ||
+      !parentName ||
+      !email ||
+      !phone ||
+      !schoolName ||
+      !currentClass ||
+      !programInterest
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all required fields",
+      });
     }
 
-    // Check if enquiry already exists
+    // Check duplicate email
     const existingEnquiry = await Enquiry.findOne({ email });
+
     if (existingEnquiry) {
-      return res.status(400).json({ error: 'Email already registered' });
+      return res.status(409).json({
+        success: false,
+        message: "This email has already submitted an enquiry",
+      });
     }
 
     // Create enquiry
-    const enquiry = new Enquiry({
+    const enquiry = await Enquiry.create({
       studentName,
       parentName,
       email,
@@ -29,19 +53,24 @@ export const createEnquiry = async (req, res) => {
       message,
     });
 
-    await enquiry.save();
-
-    console.log(`[Enquiry] New enquiry saved successfully from: ${email}`);
+    console.log(`✅ Enquiry saved from ${email}`);
 
     res.status(201).json({
-      message: 'Enquiry submitted successfully',
-      enquiry,
+      success: true,
+      message: "Enquiry submitted successfully",
+      data: enquiry,
     });
+
   } catch (error) {
-    console.error('[Enquiry] Creation Error:', error);
-    res.status(500).json({ error: error.message });
+    console.error("❌ Enquiry Creation Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error while creating enquiry",
+    });
   }
 };
+
 
 export const getAllEnquiries = async (req, res) => {
   try {
@@ -58,29 +87,41 @@ export const getAllEnquiries = async (req, res) => {
     const total = await Enquiry.countDocuments(filter);
 
     res.json({
+      success: true,
       total,
       page: parseInt(page),
       pages: Math.ceil(total / limit),
       enquiries,
     });
+
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 export const getEnquiryById = async (req, res) => {
   try {
     const enquiry = await Enquiry.findById(req.params.id);
 
     if (!enquiry) {
-      return res.status(404).json({ error: 'Enquiry not found' });
+      return res.status(404).json({
+        success: false,
+        message: "Enquiry not found",
+      });
     }
 
-    res.json(enquiry);
+    res.json({
+      success: true,
+      enquiry,
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 export const updateEnquiry = async (req, res) => {
   try {
@@ -93,24 +134,40 @@ export const updateEnquiry = async (req, res) => {
     );
 
     if (!enquiry) {
-      return res.status(404).json({ error: 'Enquiry not found' });
+      return res.status(404).json({
+        success: false,
+        message: "Enquiry not found",
+      });
     }
 
-    res.json({ message: 'Enquiry updated', enquiry });
+    res.json({
+      success: true,
+      message: "Enquiry updated",
+      enquiry,
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 export const deleteEnquiry = async (req, res) => {
   try {
     const enquiry = await Enquiry.findByIdAndDelete(req.params.id);
 
     if (!enquiry) {
-      return res.status(404).json({ error: 'Enquiry not found' });
+      return res.status(404).json({
+        success: false,
+        message: "Enquiry not found",
+      });
     }
 
-    res.json({ message: 'Enquiry deleted successfully' });
+    res.json({
+      success: true,
+      message: "Enquiry deleted successfully",
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

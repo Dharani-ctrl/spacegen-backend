@@ -1,41 +1,39 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const enquirySchema = new mongoose.Schema(
   {
     studentName: {
       type: String,
-      required: [true, 'Student name is required'],
+      required: true,
       trim: true,
     },
     parentName: {
       type: String,
-      required: [true, 'Parent name is required'],
+      required: true,
       trim: true,
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: true,
       lowercase: true,
-      match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/, 'Please provide valid email'],
     },
     phone: {
       type: String,
-      required: [true, 'Phone number is required'],
-      match: [/^[0-9]{10}$/, 'Please provide valid 10-digit phone number'],
+      required: true,
     },
     schoolName: {
       type: String,
-      required: [true, 'School name is required'],
+      required: true,
       trim: true,
     },
     currentClass: {
       type: String,
-      required: [true, 'Current class is required'],
+      required: true,
     },
     programInterest: {
       type: String,
-      enum: ['Level 1', 'Level 2', 'Both'],
-      required: [true, 'Program interest is required'],
+      enum: ["Level 1", "Level 2", "Both"],
+      required: true,
     },
     message: {
       type: String,
@@ -43,27 +41,18 @@ const enquirySchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['new', 'reviewed', 'contacted', 'enrolled', 'rejected'],
-      default: 'new',
+      enum: ["new", "reviewed", "contacted", "enrolled", "rejected"],
+      default: "new",
     },
-    notes: {
-      type: String,
-      trim: true,
-    },
-    followUpDate: {
-      type: Date,
-    },
+    notes: String,
+    followUpDate: Date,
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Index for searching
 enquirySchema.index({ email: 1 });
 enquirySchema.index({ status: 1 });
-enquirySchema.index({ createdAt: -1 });
 
-const Enquiry = mongoose.model('Enquiry', enquirySchema);
+const Enquiry = mongoose.model("Enquiry", enquirySchema);
 
 export default Enquiry;

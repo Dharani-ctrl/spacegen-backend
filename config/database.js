@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 export const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGODB_URI;
-    
+
     if (!mongoURI) {
       if (process.env.NODE_ENV === 'production') {
         throw new Error('MONGODB_URI is not defined. Please set it in your Render environment variables.');
@@ -12,7 +12,7 @@ export const connectDB = async () => {
     }
 
     const finalURI = mongoURI || 'mongodb://localhost:27017/spacegen';
-    
+
     await mongoose.connect(finalURI);
 
     console.log('[DB] MongoDB Connected Successfully');

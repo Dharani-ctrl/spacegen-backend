@@ -25,10 +25,10 @@ app.use(
 // ---------------- CORS CONFIGURATION ---------------- //
 
 const allowedOrigins = [
-  // "https://spacegen-aviation-six.vercel.app",
-  // "https://spacegen-aviation-utd3.vercel.app",
-  // "https://www.spacegenaviation.in",
   "http://localhost:3000",
+  "https://spacegen-aviation-six.vercel.app",
+  "https://spacegen-aviation-utd3.vercel.app",
+  "https://www.spacegenaviation.in",
   "http://localhost:3001",
   "http://127.0.0.1:3000",
   "http://127.0.0.1:3001"
@@ -36,7 +36,15 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]

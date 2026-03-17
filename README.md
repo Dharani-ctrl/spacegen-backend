@@ -47,7 +47,7 @@ Edit `.env` with your values:
 MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/spacegen
 JWT_SECRET=your-secret-key
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=spacegen@2024
+ADMIN_PASSWORD=spacegen@2026
 ```
 
 ### 4. Run Server
@@ -90,7 +90,7 @@ POST /api/auth/login
 
 {
   "username": "admin",
-  "password": "spacegen@2024"
+  "password": "spacegen@2026"
 }
 ```
 
@@ -181,7 +181,7 @@ Authorization: Bearer <token>
 | `MONGODB_URI` | MongoDB connection string | mongodb+srv://... |
 | `JWT_SECRET` | Secret for JWT tokens | your-secret-key |
 | `ADMIN_USERNAME` | Default admin username | admin |
-| `ADMIN_PASSWORD` | Default admin password | spacegen@2024 |
+| `ADMIN_PASSWORD` | Default admin password | spacegen@2026 |
 | `CORS_ORIGIN` | Allowed origins | http://localhost:3000 |
 
 ## Development

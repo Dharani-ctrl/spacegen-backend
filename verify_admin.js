@@ -15,13 +15,13 @@ const verify = async () => {
       console.log('Admin user NOT FOUND');
     } else {
       console.log('Admin user found:', admin.username);
-      const isMatch = await bcryptjs.compare('spacegen@2024', admin.password);
-      console.log('Password "spacegen@2024" match:', isMatch);
-      
+      const isMatch = await bcryptjs.compare('spacegen@2026', admin.password);
+      console.log('Password "spacegen@2026" match:', isMatch);
+
       const isMatchEnv = await bcryptjs.compare(process.env.ADMIN_PASSWORD, admin.password);
       console.log('Password from env match:', isMatchEnv);
     }
-    
+
     await mongoose.disconnect();
   } catch (err) {
     console.error(err);

@@ -57,7 +57,7 @@ connectDB().then(async () => {
     console.log('Creating default admin user...');
     await Admin.create({
       username: process.env.ADMIN_USERNAME || 'admin',
-      password: process.env.ADMIN_PASSWORD || 'spacegen@2024',
+      password: process.env.ADMIN_PASSWORD || 'spacegen@2026',
       email: 'admin@spacegen.com'
     });
     console.log('✅ Default admin created');

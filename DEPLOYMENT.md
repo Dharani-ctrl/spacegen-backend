@@ -173,7 +173,7 @@ curl -X POST https://spacegen-backend.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "admin",
-    "password": "spacegen@2024"
+    "password": "spacegen@2026"
   }'
 ```
 

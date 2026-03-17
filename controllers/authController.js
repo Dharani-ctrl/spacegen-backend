@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log(`Login attempt for user: ${username}`);
 
     // Validate input
     if (!username || !password) {
